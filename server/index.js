@@ -81,16 +81,23 @@ const verifyToken = (req, res, next) => {
   return next();
 };
 
-// 4. File Storage Engine (Local Disk)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = './uploads';
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir); // Create folder if missing
-    cb(null, dir);
+// 4. File Storage Engine (Cloudinary)
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'my-private-cloud',
+    resource_type: 'auto', // Allow images, videos, and raw files
+    public_id: (req, file) => Date.now() + '-' + file.originalname.replace(/\.[^/.]+$/, ""),
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
 });
 const upload = multer({ storage });
 
@@ -176,8 +183,8 @@ app.get('/api/file/:id', verifyToken, async (req, res) => {
   const file = await FileModel.findById(req.params.id);
   if (!file) return res.status(404).send("File not found");
   
-  const absolutePath = path.join(__dirname, file.path);
-  res.download(absolutePath, file.originalName);
+  // Redirect to the Cloudinary URL
+  res.redirect(file.path);
 });
 
 // Create Folder
@@ -243,8 +250,8 @@ app.get('/share/:token', async (req, res) => {
   const file = await FileModel.findOne({ shareToken: req.params.token });
   if (!file) return res.status(404).send("Link expired or invalid");
   
-  const absolutePath = path.join(__dirname, file.path);
-  res.download(absolutePath, file.originalName);
+  // Redirect to the Cloudinary URL
+  res.redirect(file.path);
 });
 
 // Restore File (From Trash)
@@ -276,8 +283,10 @@ app.delete('/api/file/:id', verifyToken, async (req, res) => {
         const children = await FileModel.find({ parentId: id });
         for (const child of children) await deleteRecursive(child._id);
       } else {
-        const absolutePath = path.join(__dirname, file.path);
-        if (fs.existsSync(absolutePath)) fs.unlinkSync(absolutePath);
+        // Delete from Cloudinary using the public_id stored in filename
+        if (target.filename) {
+           await cloudinary.uploader.destroy(target.filename);
+        }
       }
       await FileModel.findByIdAndDelete(id);
     };
