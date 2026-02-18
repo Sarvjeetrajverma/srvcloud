@@ -19,7 +19,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key_12345";
 app.use(cors());
 app.use(express.json());
 
-module.exports = app;
 // Debug Logging: See who is connecting
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url} from IP: ${req.ip}`);
@@ -341,4 +340,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.get('/', (req, res) => {
+  res.send('My Private Cloud Server is Running');
+});
+
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+module.exports = app;
