@@ -1,10 +1,10 @@
 {
-  "name": "server",
+  "name": "my-cloud-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "fix-port": "npx kill-port 5000",
     "backup": "mongodump --db myfiles --out ./backup"
   },

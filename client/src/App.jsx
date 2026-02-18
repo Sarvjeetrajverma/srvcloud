@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // Automatically switch between Localhost (Dev) and Render (Production)
 const API_URL = import.meta.env.PROD 
-  ? 'https://<YOUR-RENDER-APP-NAME>.onrender.com/api' // REPLACE THIS with your actual Render URL
+  ? 'https://srvcloud-backend.onrender.com/api' // Example: Replace with your ACTUAL Render URL
   : 'http://localhost:5000/api';
 
 const MAX_STORAGE = 1 * 1024 * 1024 * 1024; // 1 GB Storage Limit
