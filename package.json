@@ -5,7 +5,7 @@
   "scripts": {
     "client": "cd client && npm run dev",
     "server": "cd server && npm run dev",
-    "dev": "npm run client & npm run server",
+    "dev": "start npm run client && npm run server",
     "install-all": "cd client && npm install && cd ../server && npm install",
     "fix-port": "cd server && npm run fix-port"
   },
