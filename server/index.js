@@ -12,7 +12,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key_12345";
 
 // Middleware
@@ -27,9 +27,17 @@ app.use((req, res, next) => {
 });
 
 // 1. Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myfiles')
+let mongoUri = process.env.MONGO_URI;
+if (mongoUri) mongoUri = mongoUri.trim(); // Remove accidental spaces
+
+if (!mongoUri || !mongoUri.startsWith('mongodb')) {
+  console.warn('Invalid or missing MONGO_URI. Using local fallback.');
+  mongoUri = 'mongodb://localhost:27017/myfiles';
+}
+
+mongoose.connect(mongoUri)
   .then(async () => {
-    console.log('MongoDB Connected');
+    console.log(`MongoDB Connected: ${mongoose.connection.host}`);
     // Auto-create the specific secure admin
     const username = "sarvjeetrajverma";
     const user = await User.findOne({ username });
@@ -323,7 +331,7 @@ app.put('/api/profile/update', verifyToken, async (req, res) => {
 });
 
 // System Health Check
-app.get('/api/health', verifyToken, (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({
     status: 'Online',
     uptime: process.uptime(),
