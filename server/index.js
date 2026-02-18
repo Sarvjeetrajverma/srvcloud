@@ -19,6 +19,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key_12345";
 app.use(cors());
 app.use(express.json());
 
+module.exports = app;
 // Debug Logging: See who is connecting
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url} from IP: ${req.ip}`);
