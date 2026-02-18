@@ -1,0 +1,15 @@
+{
+  "name": "my-private-cloud",
+  "version": "1.0.0",
+  "description": "Full-stack private cloud application",
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "dev": "npm run client & npm run server",
+    "install-all": "cd client && npm install && cd ../server && npm install",
+    "fix-port": "cd server && npm run fix-port"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
